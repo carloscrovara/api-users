@@ -1,59 +1,73 @@
-const express = require('express');
-const logger = require('morgan');
-const bodyParser = require('body-parser');
+const express = require("express");
+const logger = require("morgan");
+const bodyParser = require("body-parser");
 const app = express();
+const sequelize = require("sequelize");
+const mysql = require("mysql2");
 
-app.use(logger('dev'));
+let accounts = require("./models").accounts;
+
+app.use(logger("dev"));
 //variables de entorno
-require('dotenv').config()
+require("dotenv").config();
 
-let helpers = require('./login');
+let helpers = require("./login");
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}))
-
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //rutas y funciones.
 
 //Ruta Login
-app.post("/login", function (req, res) {
-  
-    let user = {
-        username: "adrianu",
-        password: "adrianu"
-    }
+app.post("/login", async function (req, res) {
+  let cuenta = await accounts.findAll({
+    where: {
+      username: req.body.username,
+      password: req.body.password,
+    },
+  });
 
-    if(req.body.username === user.username && req.body.password === user.password){
-        res.json("login correcto")
-    }else{
-        res.json("Corrobore sus credenciales")
-    }
-
- 
+  if (cuenta.length == 0) {
+    res.json("compruebe credenciales");
+  } else {
+    res.json(cuenta);
+  }
 });
 
 //Ruta registro
-app.post("/registro", function(req, res){
+app.post("/registro", async function (req, res) {
 
-   let mensaje =  helpers.comprobar(req.body.password, req.body.confirmpassword);
+    let cuenta = {
+        name: req.body.name,
+        lastname: req.body.lastname,
+        username: req.body.username,
+        password: req.body.password,
+        confirmpassword: req.body.confirmpassword
+    };
 
-    res.json(mensaje)
-})
- 
+    if (!cuenta.password && !cuenta.confirmpassword) {
+         res.json( "complete los campos");
+     } else {
+       if (cuenta.password === cuenta.confirmpassword) {
+         let registro = await accounts.create(
+             cuenta
+         );
+         res.json(registro);
+       } else {
+        res.json( "las contraseñas no coinciden");
+       }
+     }
+   });
 
-
-
-
-//Verificación Ambiente   
+//Verificación Ambiente
 let port;
-if(process.env.NODE_ENV === "production"){
-     port =  process.env.PORT_PROD;
-}else{
-     port =  process.env.PORT_DEV;
+if (process.env.NODE_ENV === "production") {
+  port = process.env.PORT_PROD;
+} else {
+  port = process.env.PORT_DEV;
 }
- 
+
 //express
 app.listen(port, function () {
-    console.log("Servidor Activo", port, process.env.NODE_ENV);
-  });
-  
+  console.log("Servidor Activo", port, process.env.NODE_ENV);
+});
