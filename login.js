@@ -1,7 +1,7 @@
 
 function comprobar(password, confirmpassword) {
   if (!password && !confirmpassword) {
-     return "complete los campos";
+    return "complete los campos";
   } else {
     if (password === confirmpassword) {
       return "registro existoso";

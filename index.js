@@ -11,12 +11,10 @@ app.use(logger("dev"));
 //variables de entorno
 require("dotenv").config();
 
-let helpers = require("./login");
+//let helpers = require("./login");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-//rutas y funciones.
 
 //Ruta Login
 app.post("/login", async function (req, res) {
@@ -28,7 +26,7 @@ app.post("/login", async function (req, res) {
   });
 
   if (cuenta.length == 0) {
-    res.json("compruebe credenciales");
+    res.json("Compruebe credenciales");
   } else {
     res.json(cuenta);
   }
@@ -46,18 +44,18 @@ app.post("/registro", async function (req, res) {
     };
 
     if (!cuenta.password && !cuenta.confirmpassword) {
-         res.json( "complete los campos");
-     } else {
-       if (cuenta.password === cuenta.confirmpassword) {
-         let registro = await accounts.create(
-             cuenta
-         );
-         res.json(registro);
-       } else {
-        res.json( "las contraseñas no coinciden");
-       }
-     }
-   });
+        res.json("Complete los campos");
+    } else {
+      if (cuenta.password === cuenta.confirmpassword) {
+        let registro = await accounts.create(
+            cuenta
+        );
+        res.json(registro);
+      } else {
+        res.json("Las contraseñas no coinciden");
+      }
+    }
+});
 
 //Verificación Ambiente
 let port;
@@ -67,7 +65,7 @@ if (process.env.NODE_ENV === "production") {
   port = process.env.PORT_DEV;
 }
 
-//express
+//Express
 app.listen(port, function () {
   console.log("Servidor Activo", port, process.env.NODE_ENV);
 });
